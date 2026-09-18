@@ -1,21 +1,29 @@
-logging.basicConfig(
- format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
- level=logging.INFO
-)
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
+import google.generativeai as genai
 
-# Configure Gemini API
-genai.configure(api_key="AQ.Ab8RN6JOPW1gohQ85T18MUnqYz1Rpz8IM8Tc_sgcFw4yDfK_Ag")
-model = genai.GenerativeModel('gemini-1.5-flash')
+genai.configure(api_key='AQ.Ab8RN6JOPW1gohQ85T18MUnqYz1Rpz8IM8Tc_sgcFw4yDfK_Ag')
+model = genai.GenerativeModel('gemini-pro')
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
- user_message = update.message.text
- response = model.generate_content(user_message)
- await context.bot.send_message(chat_id=update.effective_chat.id, text=response.text)
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Hello! I am your Telegram Bot, powered by Gemini AI.')
+
+async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_message = update.message.text
+    try:
+        response = model.generate_content(user_message)
+        await update.message.reply_text(response.text)
+    except Exception as e:
+        await update.message.reply_text('Sorry, there was an error.')
 
 if __name__ == '__main__':
- application = ApplicationBuilder().token('8863800334:AAEv_k_3v8Ka12YnCgLMLpHog1MqaTdNMAA').build()
- message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message)
- application.add_handler(message_handler)
-
- application.run_polling()
+    application = ApplicationBuilder().token('8863800334:AAEv_k_3v8Ka12YnCgLMLpHog1MqaTdNMAA').build()
+    
+    start_handler = CommandHandler('start', start)
+    chat_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), chat)
+    
+    application.add_handler(start_handler)
+    application.add_handler(chat_handler)
+    
+    application.run_polling()
  
