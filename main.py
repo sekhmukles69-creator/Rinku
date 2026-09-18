@@ -1,9 +1,3 @@
-import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
-import google.generativeai as genai
-
-# Setup logging
 logging.basicConfig(
  format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
  level=logging.INFO
@@ -24,3 +18,4 @@ if __name__ == '__main__':
  application.add_handler(message_handler)
 
  application.run_polling()
+ 
